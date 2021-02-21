@@ -25,7 +25,7 @@ class Faction {
         this.plugin = plugin
     }
 
-    fun save() {
+    private fun save() {
         val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
 
         val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
@@ -51,6 +51,10 @@ class Faction {
         }
 
         throw Throwable("Member doesn't exist!")
+    }
+
+    fun getMembers() : Vector<FactionMember> {
+        return members
     }
 
     fun addMember(uuid: UUID) {

@@ -7,7 +7,6 @@ import java.io.File
 class Plugin : JavaPlugin() {
 
     override fun onEnable() {
-        Bukkit.getLogger().info("Works!")
         Bukkit.getServer().pluginManager.registerEvents(JoinEvent(this), this)
 
         getCommand("factions")?.setExecutor(FactionCommand(this))

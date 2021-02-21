@@ -21,7 +21,7 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                         val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
 
                         if (factionPlayer.getFaction() == "Lonely") {
-                            if (Faction.exists(args[1], plugin)) {
+                            if (!Faction.exists(args[1], plugin)) {
                                 if (args[1].length in 4..16) {
                                     player.inventory.remove(ItemStack(Material.DIAMOND, 32))
 
@@ -92,13 +92,52 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                         } catch (err: Throwable) {
                             factionPlayer.setPendingFaction("")
 
-                            player.sendMessage(ChatColor.RED.toString() + "Factions doesn't exist!")
+                            player.sendMessage(ChatColor.RED.toString() + "Faction doesn't exist!")
                         }
                     }
                 }
 
                 "reject" -> {
                     FactionPlayer.load(player.uniqueId, plugin).setPendingFaction("")
+                }
+
+                "info" -> {
+                    if (Faction.exists(args[1], plugin)) {
+                        val faction = Faction.load(args[1], plugin)
+
+                        player.sendMessage(ChatColor.BLUE.toString() + "Faction: " + ChatColor.GREEN.toString() + faction.getName())
+
+                        faction.getMembers().forEachIndexed { index, it ->
+                            var message: String = (index + 1).toString() + ". "
+
+                            when(it.getRank().toInt()) {
+                                1 -> {
+                                    message += ChatColor.GRAY.toString() + "Recruit"
+                                }
+
+                                2 -> {
+                                    message += ChatColor.BLUE.toString() + "Member"
+                                }
+
+                                3 -> {
+                                    message += ChatColor.GRAY.toString() + "Mod" //temp
+                                }
+
+                                4 -> {
+                                    message += ChatColor.GRAY.toString() + "Admin" //temp
+                                }
+
+                                5 -> {
+                                    message += ChatColor.GRAY.toString() + "Owner"
+                                }
+                            }
+
+                            message += " " + Bukkit.getPlayer(it.getUUID())!!.name
+                            player.sendMessage(message)
+                        }
+                    } else {
+                        player.sendMessage(ChatColor.RED.toString() + "Faction doesn't exist!")
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package pl.loczei.factions
 
+import org.bukkit.Bukkit
 import java.util.*
 
 class FactionMember(private var rank: Byte, private val uuid: UUID) {
@@ -17,8 +18,8 @@ class FactionMember(private var rank: Byte, private val uuid: UUID) {
     companion object {
         fun fromString(string: String) : FactionMember {
             return FactionMember(
-                string.subSequence(string.indexOf(";") + 1, 100).toString().toByte(),
-                UUID.fromString(string.subSequence(0, string.indexOf(";") - 1).toString())
+                string.subSequence(string.indexOf(";") + 1, string.length).toString().toByte(),
+                UUID.fromString(string.subSequence(0, string.indexOf(";")).toString())
             )
         }
     }
