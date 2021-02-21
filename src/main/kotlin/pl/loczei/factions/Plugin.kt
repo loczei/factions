@@ -1,0 +1,30 @@
+package pl.loczei.factions
+
+import org.bukkit.Bukkit
+import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
+
+class Plugin : JavaPlugin() {
+
+    override fun onEnable() {
+        Bukkit.getLogger().info("Works!")
+        Bukkit.getServer().pluginManager.registerEvents(JoinEvent(this), this)
+
+        getCommand("factions")?.setExecutor(FactionCommand(this))
+
+        //creating folders if doesn't exists
+
+        if (!dataFolder.exists()) dataFolder.mkdir()
+
+
+        val dir1 = File(dataFolder.toString() + File.separator + "players"  + File.separator)
+
+        if (!dir1.exists()) dir1.mkdir()
+
+
+        val dir2 = File(dataFolder.toString() + File.separator + "factions"  + File.separator)
+
+        if (!dir2.exists()) dir2.mkdir()
+
+    }
+}

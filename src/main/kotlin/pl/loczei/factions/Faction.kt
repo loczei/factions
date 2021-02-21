@@ -1,0 +1,80 @@
+package pl.loczei.factions
+
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
+import java.util.*
+
+class Faction {
+    private val members: Vector<FactionMember>
+    private val name: String
+
+    constructor (name: String, owner: UUID, plugin: Plugin) {
+        this.name = name
+        this.members = Vector()
+        members.add(FactionMember(5, owner))
+
+        this.save(plugin)
+    }
+
+    constructor (name: String, members: Vector<FactionMember>) {
+        this.name = name
+        this.members = members
+    }
+
+    fun save(plugin: Plugin) {
+        val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
+
+        val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
+
+        val membersArray: Vector<String> = Vector()
+
+        members.forEach( fun (e: FactionMember) {
+            membersArray.add(e.toString())
+        })
+
+        yml.set("name", name)
+        yml.set("members", membersArray.toList())
+
+        yml.save(factionFile)
+    }
+
+    fun getMember(uuid: UUID) : FactionMember {
+
+        members.forEach {
+            if (it.getUUID() == uuid) {
+                return it
+            }
+        }
+
+        throw Throwable("Member doesn't exist!")
+    }
+
+    companion object {
+        fun exists (name: String, plugin: Plugin) : Boolean {
+            val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+
+            return factionFile.exists()
+        }
+
+        fun load(name: String, plugin: Plugin): Faction {
+            val factionFile =
+                File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+
+            if (!factionFile.exists()) throw Throwable("Faction doesn't exist!")
+
+            val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
+
+            val members: Vector<FactionMember> = Vector()
+
+            yml.getList("members")?.forEach {
+                members.add(FactionMember.fromString(it.toString()))
+            }
+
+            return Faction(
+                yml.getString("name").toString(),
+                members
+            )
+        }
+    }
+}
