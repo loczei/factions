@@ -8,21 +8,24 @@ import java.util.*
 class Faction {
     private val members: Vector<FactionMember>
     private val name: String
+    private val plugin: Plugin
 
     constructor (name: String, owner: UUID, plugin: Plugin) {
         this.name = name
         this.members = Vector()
+        this.plugin = plugin
         members.add(FactionMember(5, owner))
 
-        this.save(plugin)
+        this.save()
     }
 
-    constructor (name: String, members: Vector<FactionMember>) {
+    constructor (name: String, members: Vector<FactionMember>, plugin: Plugin) {
         this.name = name
         this.members = members
+        this.plugin = plugin
     }
 
-    fun save(plugin: Plugin) {
+    fun save() {
         val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
 
         val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
@@ -50,6 +53,13 @@ class Faction {
         throw Throwable("Member doesn't exist!")
     }
 
+    fun addMember(uuid: UUID) {
+        members.add(FactionMember(1, uuid))
+        this.save()
+    }
+
+    fun getName () : String { return name }
+
     companion object {
         fun exists (name: String, plugin: Plugin) : Boolean {
             val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
@@ -73,7 +83,8 @@ class Faction {
 
             return Faction(
                 yml.getString("name").toString(),
-                members
+                members,
+                plugin
             )
         }
     }

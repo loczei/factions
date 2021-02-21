@@ -59,13 +59,46 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                                 if (invited.getPendingFaction() == "") {
                                     invited.setPendingFaction(inviting.getFaction())
 
-                                    //here
+                                    if (invitedPlayer.isOnline) {
+                                        invitedPlayer.sendMessage(ChatColor.GREEN.toString() + player.name + ChatColor.BLUE.toString() + " invites you to faction " + ChatColor.GREEN.toString() + faction.getName())
+                                        invitedPlayer.sendMessage(ChatColor.AQUA.toString() + "Write /factions accept to accept")
+                                        invitedPlayer.sendMessage(ChatColor.DARK_PURPLE.toString() + "Write /factions reject to reject")
+                                    }
+                                } else {
+                                    player.sendMessage(ChatColor.RED.toString() + "Invited player have pending faction!")
                                 }
+                            } else {
+                                player.sendMessage(ChatColor.RED.toString() + "Your rank in faction is to small!")
                             }
+                        } else {
+                            player.sendMessage(ChatColor.RED.toString() + "You must have faction!")
                         }
                     } else {
                         player.sendMessage(ChatColor.RED.toString() + "Player doesn't exist!")
                     }
+                }
+
+                "accept" -> {
+                    val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+                    if (factionPlayer.getPendingFaction() != "") {
+                        try {
+                            val faction = Faction.load(factionPlayer.getPendingFaction(), plugin)
+
+                            factionPlayer.setFaction(faction.getName())
+                            factionPlayer.setPendingFaction("")
+
+                            faction.addMember(player.uniqueId)
+                            player.sendMessage(ChatColor.BLUE.toString() + "You successfully joined faction " + ChatColor.GREEN.toString() + faction.getName())
+                        } catch (err: Throwable) {
+                            factionPlayer.setPendingFaction("")
+
+                            player.sendMessage(ChatColor.RED.toString() + "Factions doesn't exist!")
+                        }
+                    }
+                }
+
+                "reject" -> {
+                    FactionPlayer.load(player.uniqueId, plugin).setPendingFaction("")
                 }
             }
         }
