@@ -1,1 +1,1 @@
-Simple factions plugin written in Kotlin
+Simple factions plugin written in Kotlin (unfinished)
