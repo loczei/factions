@@ -62,6 +62,18 @@ class Faction {
         this.save()
     }
 
+    fun deleteMember(uuid: UUID) : Boolean {
+        return try {
+            members.remove(getMember(uuid))
+            save()
+
+            true
+        } catch (err: Throwable) {
+            false
+        }
+
+    }
+
     fun getName () : String { return name }
 
     companion object {

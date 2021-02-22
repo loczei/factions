@@ -120,15 +120,15 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                                 }
 
                                 3 -> {
-                                    message += ChatColor.GRAY.toString() + "Mod" //temp
+                                    message += ChatColor.AQUA.toString() + "Mod" //temp
                                 }
 
                                 4 -> {
-                                    message += ChatColor.GRAY.toString() + "Admin" //temp
+                                    message += ChatColor.GREEN.toString() + "Admin" //temp
                                 }
 
                                 5 -> {
-                                    message += ChatColor.GRAY.toString() + "Owner"
+                                    message += ChatColor.LIGHT_PURPLE.toString() + "Owner"
                                 }
                             }
 
@@ -137,6 +137,34 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                         }
                     } else {
                         player.sendMessage(ChatColor.RED.toString() + "Faction doesn't exist!")
+                    }
+                }
+
+                "kick" -> {
+                    val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+
+                    if (factionPlayer.getFaction() != "Lonely") {
+                        try {
+                            val faction = Faction.load(factionPlayer.getFaction(), plugin)
+
+                            if (faction.getMember(player.uniqueId).getRank() in 2..6 ) {
+                                if (Bukkit.getPlayer(args[1]) is Player) {
+                                    val kickedPlayer: Player = Bukkit.getPlayer(args[1])!!
+
+                                    if (faction.getMember(kickedPlayer.uniqueId).getRank() < faction.getMember(player.uniqueId).getRank()) {
+                                        if(faction.deleteMember(kickedPlayer.uniqueId)) {
+                                            val kicked = FactionPlayer.load(kickedPlayer.uniqueId, plugin)
+
+                                            kicked.setFaction("Lonely")
+                                        }
+                                    }
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED.toString() + "Your rank is to small to kick anybody from the faction!")
+                            }
+                        } catch (err: Throwable) {
+                            player.sendMessage(ChatColor.RED.toString() + err.message)
+                        }
                     }
                 }
             }
