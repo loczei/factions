@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class FactionCommand(private val plugin: Plugin) : CommandExecutor {
+class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, name: String, args: Array<out String>): Boolean {
         if (sender is Player) {
@@ -18,14 +18,14 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
             when (args[0]) {
                 "create" -> {
                     if (player.inventory.contains(ItemStack(Material.DIAMOND, 32))) {
-                        val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+                        val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
 
                         if (factionPlayer.getFaction() == "Lonely") {
-                            if (!Faction.exists(args[1], plugin)) {
+                            if (!Faction.exists(args[1], factionsPlugin)) {
                                 if (args[1].length in 4..16) {
                                     player.inventory.remove(ItemStack(Material.DIAMOND, 32))
 
-                                    Faction(args[1], player.uniqueId, plugin)
+                                    Faction(args[1], player.uniqueId, factionsPlugin)
                                     factionPlayer.setFaction(args[1])
 
                                     player.sendMessage(ChatColor.BLUE.toString() + "Successfully created faction " + ChatColor.GREEN.toString() + args[1] + ChatColor.BLUE.toString() +"!")
@@ -46,14 +46,14 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                 }
 
                 "add" -> {
-                    if (Bukkit.getPlayer(args[1])?.let { FactionPlayer.exists(it.uniqueId, plugin) } == true) {
-                        val inviting: FactionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+                    if (Bukkit.getPlayer(args[1])?.let { FactionPlayer.exists(it.uniqueId, factionsPlugin) } == true) {
+                        val inviting: FactionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
 
                         if (inviting.getFaction() != "Lonely") {
-                            val faction = Faction.load(inviting.getFaction(), plugin)
+                            val faction = Faction.load(inviting.getFaction(), factionsPlugin)
 
                             if (faction.getMember(player.uniqueId).getRank() in 2..6) {
-                                val invited: FactionPlayer = FactionPlayer.load(Bukkit.getPlayer(args[1])!!.uniqueId, plugin)
+                                val invited: FactionPlayer = FactionPlayer.load(Bukkit.getPlayer(args[1])!!.uniqueId, factionsPlugin)
                                 val invitedPlayer: Player = Bukkit.getPlayer(args[1])!!
 
                                 if (invited.getPendingFaction() == "") {
@@ -79,10 +79,10 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                 }
 
                 "accept" -> {
-                    val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+                    val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
                     if (factionPlayer.getPendingFaction() != "") {
                         try {
-                            val faction = Faction.load(factionPlayer.getPendingFaction(), plugin)
+                            val faction = Faction.load(factionPlayer.getPendingFaction(), factionsPlugin)
 
                             factionPlayer.setFaction(faction.getName())
                             factionPlayer.setPendingFaction("")
@@ -98,12 +98,12 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                 }
 
                 "reject" -> {
-                    FactionPlayer.load(player.uniqueId, plugin).setPendingFaction("")
+                    FactionPlayer.load(player.uniqueId, factionsPlugin).setPendingFaction("")
                 }
 
                 "info" -> {
-                    if (Faction.exists(args[1], plugin)) {
-                        val faction = Faction.load(args[1], plugin)
+                    if (Faction.exists(args[1], factionsPlugin)) {
+                        val faction = Faction.load(args[1], factionsPlugin)
 
                         player.sendMessage(ChatColor.BLUE.toString() + "Faction: " + ChatColor.GREEN.toString() + faction.getName())
 
@@ -141,11 +141,11 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                 }
 
                 "kick" -> {
-                    val factionPlayer = FactionPlayer.load(player.uniqueId, plugin)
+                    val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
 
                     if (factionPlayer.getFaction() != "Lonely") {
                         try {
-                            val faction = Faction.load(factionPlayer.getFaction(), plugin)
+                            val faction = Faction.load(factionPlayer.getFaction(), factionsPlugin)
 
                             if (faction.getMember(player.uniqueId).getRank() in 2..6 ) {
                                 if (Bukkit.getPlayer(args[1]) is Player) {
@@ -153,11 +153,20 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
 
                                     if (faction.getMember(kickedPlayer.uniqueId).getRank() < faction.getMember(player.uniqueId).getRank()) {
                                         if(faction.deleteMember(kickedPlayer.uniqueId)) {
-                                            val kicked = FactionPlayer.load(kickedPlayer.uniqueId, plugin)
+                                            val kicked = FactionPlayer.load(kickedPlayer.uniqueId, factionsPlugin)
 
                                             kicked.setFaction("Lonely")
+                                            if (kickedPlayer.isOnline) {
+                                                kickedPlayer.sendMessage(ChatColor.DARK_PURPLE.toString() + "You are kicked from faction " + ChatColor.GREEN.toString() + faction.getName())
+                                            }
+                                        } else {
+                                            player.sendMessage(ChatColor.RED.toString() + "This player isn't in your faction!")
                                         }
+                                    } else {
+                                        player.sendMessage(ChatColor.RED.toString() + "Your rank is to small to kick this member!")
                                     }
+                                } else {
+                                    player.sendMessage(ChatColor.RED.toString() + "Player doesn't exist!")
                                 }
                             } else {
                                 player.sendMessage(ChatColor.RED.toString() + "Your rank is to small to kick anybody from the faction!")
@@ -165,6 +174,15 @@ class FactionCommand(private val plugin: Plugin) : CommandExecutor {
                         } catch (err: Throwable) {
                             player.sendMessage(ChatColor.RED.toString() + err.message)
                         }
+                    }
+                }
+
+                "setrank" -> {
+                    if (Bukkit.getPlayer(args[1]) is Player) {
+                        val sPlayer: Player = Bukkit.getPlayer(args[1])!!
+
+
+                        //in progress
                     }
                 }
             }

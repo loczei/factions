@@ -4,7 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 
-class Plugin : JavaPlugin() {
+class FactionsPlugin : JavaPlugin() {
 
     override fun onEnable() {
         Bukkit.getServer().pluginManager.registerEvents(JoinEvent(this), this)

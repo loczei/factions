@@ -8,25 +8,25 @@ import java.util.*
 class Faction {
     private val members: Vector<FactionMember>
     private val name: String
-    private val plugin: Plugin
+    private val factionsPlugin: FactionsPlugin
 
-    constructor (name: String, owner: UUID, plugin: Plugin) {
+    constructor (name: String, owner: UUID, factionsPlugin: FactionsPlugin) {
         this.name = name
         this.members = Vector()
-        this.plugin = plugin
+        this.factionsPlugin = factionsPlugin
         members.add(FactionMember(5, owner))
 
         this.save()
     }
 
-    constructor (name: String, members: Vector<FactionMember>, plugin: Plugin) {
+    constructor (name: String, members: Vector<FactionMember>, factionsPlugin: FactionsPlugin) {
         this.name = name
         this.members = members
-        this.plugin = plugin
+        this.factionsPlugin = factionsPlugin
     }
 
     private fun save() {
-        val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
+        val factionFile = File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
 
         val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
 
@@ -77,15 +77,15 @@ class Faction {
     fun getName () : String { return name }
 
     companion object {
-        fun exists (name: String, plugin: Plugin) : Boolean {
-            val factionFile = File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+        fun exists (name: String, factionsPlugin: FactionsPlugin) : Boolean {
+            val factionFile = File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
 
             return factionFile.exists()
         }
 
-        fun load(name: String, plugin: Plugin): Faction {
+        fun load(name: String, factionsPlugin: FactionsPlugin): Faction {
             val factionFile =
-                File(plugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+                File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
 
             if (!factionFile.exists()) throw Throwable("Faction doesn't exist!")
 
@@ -100,7 +100,7 @@ class Faction {
             return Faction(
                 yml.getString("name").toString(),
                 members,
-                plugin
+                factionsPlugin
             )
         }
     }
