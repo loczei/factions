@@ -1,6 +1,5 @@
 package pl.loczei.factions
 
-import org.bukkit.Bukkit
 import java.util.*
 
 class FactionMember(private var rank: Byte, private val uuid: UUID) {

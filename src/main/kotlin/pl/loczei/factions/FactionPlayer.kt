@@ -5,14 +5,14 @@ import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.util.*
 
-class FactionPlayer(private val uuid: UUID, private var faction: String, private var pendingFaction: String, private val factionsPlugin: FactionsPlugin) {
+class FactionPlayer(private val uuid: UUID, private var faction: String, private var pendingFaction: String) {
 
     init {
         this.save()
     }
 
     fun save () {
-        val playerFile = File(factionsPlugin.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
+        val playerFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
 
         if (!playerFile.exists()) playerFile.createNewFile()
 
@@ -44,14 +44,14 @@ class FactionPlayer(private val uuid: UUID, private var faction: String, private
     }
 
     companion object {
-        fun exists(uuid: UUID, factionsPlugin: FactionsPlugin) : Boolean {
-            val playerFile = File(factionsPlugin.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
+        fun exists(uuid: UUID) : Boolean {
+            val playerFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
 
             return playerFile.exists()
         }
 
-        fun load(uuid: UUID, factionsPlugin: FactionsPlugin) : FactionPlayer {
-            val playerFile = File(factionsPlugin.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
+        fun load(uuid: UUID) : FactionPlayer {
+            val playerFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
 
             if (!playerFile.exists()) throw Throwable("Player doesn't exist!")
 
@@ -62,8 +62,7 @@ class FactionPlayer(private val uuid: UUID, private var faction: String, private
             return FactionPlayer(
                 UUID.fromString(yml.getString("uuid")),
                 yml.getString("faction").toString(),
-                yml.getString("pendingFaction").toString(),
-                factionsPlugin
+                yml.getString("pendingFaction").toString()
             )
         }
     }

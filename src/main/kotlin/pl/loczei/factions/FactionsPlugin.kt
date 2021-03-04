@@ -5,11 +5,17 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 
 class FactionsPlugin : JavaPlugin() {
+    companion object {
+        lateinit var instance: FactionsPlugin
+            private set
+    }
 
     override fun onEnable() {
         Bukkit.getServer().pluginManager.registerEvents(JoinEvent(this), this)
 
-        getCommand("factions")?.setExecutor(FactionCommand(this))
+        getCommand("factions")?.setExecutor(FactionCommand())
+
+        instance = this
 
         //creating folders if doesn't exists
 

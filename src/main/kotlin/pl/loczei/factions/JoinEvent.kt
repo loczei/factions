@@ -8,10 +8,10 @@ import org.bukkit.event.player.PlayerJoinEvent
 class JoinEvent(private val factionsPlugin: FactionsPlugin) : Listener {
 
     @EventHandler fun onPlayerJoin (event: PlayerJoinEvent) {
-        if (!FactionPlayer.exists(event.player.uniqueId, factionsPlugin))
-            FactionPlayer(event.player.uniqueId, "Lonely", "", factionsPlugin)
+        if (!FactionPlayer.exists(event.player.uniqueId))
+            FactionPlayer(event.player.uniqueId, "Lonely", "")
 
-        val player = FactionPlayer.load(event.player.uniqueId, factionsPlugin)
+        val player = FactionPlayer.load(event.player.uniqueId)
 
         if (player.getPendingFaction() != "") {
             event.player.sendMessage(ChatColor.BLUE.toString() + "You have been invited to faction " + ChatColor.GREEN.toString() + player.getPendingFaction())

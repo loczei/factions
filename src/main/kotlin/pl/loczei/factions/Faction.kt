@@ -8,25 +8,22 @@ import java.util.*
 class Faction {
     private val members: Vector<FactionMember>
     private val name: String
-    private val factionsPlugin: FactionsPlugin
 
-    constructor (name: String, owner: UUID, factionsPlugin: FactionsPlugin) {
+    constructor (name: String, owner: UUID) {
         this.name = name
         this.members = Vector()
-        this.factionsPlugin = factionsPlugin
         members.add(FactionMember(5, owner))
 
         this.save()
     }
 
-    constructor (name: String, members: Vector<FactionMember>, factionsPlugin: FactionsPlugin) {
+    constructor (name: String, members: Vector<FactionMember>) {
         this.name = name
         this.members = members
-        this.factionsPlugin = factionsPlugin
     }
 
     private fun save() {
-        val factionFile = File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
+        val factionFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + this.name + ".yml")
 
         val yml: FileConfiguration = YamlConfiguration.loadConfiguration(factionFile)
 
@@ -76,16 +73,24 @@ class Faction {
 
     fun getName () : String { return name }
 
+    fun setRank(uuid: UUID, rank: Int) {
+        try {
+            members[members.indexOf(getMember(uuid))].setRank(rank.toByte())
+        } catch (err: Throwable) {
+            throw err
+        }
+    }
+
     companion object {
-        fun exists (name: String, factionsPlugin: FactionsPlugin) : Boolean {
-            val factionFile = File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+        fun exists (name: String) : Boolean {
+            val factionFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
 
             return factionFile.exists()
         }
 
-        fun load(name: String, factionsPlugin: FactionsPlugin): Faction {
+        fun load(name: String): Faction {
             val factionFile =
-                File(factionsPlugin.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+                File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
 
             if (!factionFile.exists()) throw Throwable("Faction doesn't exist!")
 
@@ -99,8 +104,7 @@ class Faction {
 
             return Faction(
                 yml.getString("name").toString(),
-                members,
-                factionsPlugin
+                members
             )
         }
     }

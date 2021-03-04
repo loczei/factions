@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecutor {
+class FactionCommand() : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, name: String, args: Array<out String>): Boolean {
         if (sender is Player) {
@@ -17,15 +17,33 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
 
             when (args[0]) {
                 "create" -> {
-                    if (player.inventory.contains(ItemStack(Material.DIAMOND, 32))) {
-                        val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
+                    if (player.inventory.containsAtLeast(ItemStack(Material.DIAMOND), 32)) {
+                        val factionPlayer = FactionPlayer.load(player.uniqueId)
 
                         if (factionPlayer.getFaction() == "Lonely") {
-                            if (!Faction.exists(args[1], factionsPlugin)) {
+                            if (!Faction.exists(args[1])) {
                                 if (args[1].length in 4..16) {
-                                    player.inventory.remove(ItemStack(Material.DIAMOND, 32))
+                                    var i = 0
+                                    var toget = 32;
+                                    for (item in player.inventory) {
+                                        if (item is ItemStack) {
+                                            if (item.isSimilar(ItemStack(Material.DIAMOND))) {
+                                                if (item.amount == toget) {
+                                                    player.inventory.setItem(i, ItemStack(Material.AIR))
+                                                    break
+                                                } else if (item.amount > toget){
+                                                    player.inventory.setItem(i, ItemStack(Material.DIAMOND, item.amount - toget))
+                                                    break
+                                                } else if (item.amount < toget) {
+                                                    toget -= item.amount
+                                                    player.inventory.setItem(i, ItemStack(Material.AIR))
+                                                }
+                                            }
+                                        }
+                                        i++
+                                    }
 
-                                    Faction(args[1], player.uniqueId, factionsPlugin)
+                                    Faction(args[1], player.uniqueId)
                                     factionPlayer.setFaction(args[1])
 
                                     player.sendMessage(ChatColor.BLUE.toString() + "Successfully created faction " + ChatColor.GREEN.toString() + args[1] + ChatColor.BLUE.toString() +"!")
@@ -46,14 +64,14 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
                 }
 
                 "add" -> {
-                    if (Bukkit.getPlayer(args[1])?.let { FactionPlayer.exists(it.uniqueId, factionsPlugin) } == true) {
-                        val inviting: FactionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
+                    if (Bukkit.getPlayer(args[1])?.let { FactionPlayer.exists(it.uniqueId) } == true) {
+                        val inviting: FactionPlayer = FactionPlayer.load(player.uniqueId)
 
                         if (inviting.getFaction() != "Lonely") {
-                            val faction = Faction.load(inviting.getFaction(), factionsPlugin)
+                            val faction = Faction.load(inviting.getFaction())
 
                             if (faction.getMember(player.uniqueId).getRank() in 2..6) {
-                                val invited: FactionPlayer = FactionPlayer.load(Bukkit.getPlayer(args[1])!!.uniqueId, factionsPlugin)
+                                val invited: FactionPlayer = FactionPlayer.load(Bukkit.getPlayer(args[1])!!.uniqueId)
                                 val invitedPlayer: Player = Bukkit.getPlayer(args[1])!!
 
                                 if (invited.getPendingFaction() == "") {
@@ -79,10 +97,10 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
                 }
 
                 "accept" -> {
-                    val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
+                    val factionPlayer = FactionPlayer.load(player.uniqueId)
                     if (factionPlayer.getPendingFaction() != "") {
                         try {
-                            val faction = Faction.load(factionPlayer.getPendingFaction(), factionsPlugin)
+                            val faction = Faction.load(factionPlayer.getPendingFaction())
 
                             factionPlayer.setFaction(faction.getName())
                             factionPlayer.setPendingFaction("")
@@ -98,12 +116,12 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
                 }
 
                 "reject" -> {
-                    FactionPlayer.load(player.uniqueId, factionsPlugin).setPendingFaction("")
+                    FactionPlayer.load(player.uniqueId).setPendingFaction("")
                 }
 
                 "info" -> {
-                    if (Faction.exists(args[1], factionsPlugin)) {
-                        val faction = Faction.load(args[1], factionsPlugin)
+                    if (Faction.exists(args[1])) {
+                        val faction = Faction.load(args[1])
 
                         player.sendMessage(ChatColor.BLUE.toString() + "Faction: " + ChatColor.GREEN.toString() + faction.getName())
 
@@ -141,11 +159,11 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
                 }
 
                 "kick" -> {
-                    val factionPlayer = FactionPlayer.load(player.uniqueId, factionsPlugin)
+                    val factionPlayer = FactionPlayer.load(player.uniqueId)
 
                     if (factionPlayer.getFaction() != "Lonely") {
                         try {
-                            val faction = Faction.load(factionPlayer.getFaction(), factionsPlugin)
+                            val faction = Faction.load(factionPlayer.getFaction())
 
                             if (faction.getMember(player.uniqueId).getRank() in 2..6 ) {
                                 if (Bukkit.getPlayer(args[1]) is Player) {
@@ -153,7 +171,7 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
 
                                     if (faction.getMember(kickedPlayer.uniqueId).getRank() < faction.getMember(player.uniqueId).getRank()) {
                                         if(faction.deleteMember(kickedPlayer.uniqueId)) {
-                                            val kicked = FactionPlayer.load(kickedPlayer.uniqueId, factionsPlugin)
+                                            val kicked = FactionPlayer.load(kickedPlayer.uniqueId)
 
                                             kicked.setFaction("Lonely")
                                             if (kickedPlayer.isOnline) {
@@ -181,8 +199,15 @@ class FactionCommand(private val factionsPlugin: FactionsPlugin) : CommandExecut
                     if (Bukkit.getPlayer(args[1]) is Player) {
                         val sPlayer: Player = Bukkit.getPlayer(args[1])!!
 
+                        if (FactionPlayer.load(player.uniqueId).getFaction() != "Lonely") {
+                            val faction = Faction.load(FactionPlayer.load(player.uniqueId).getFaction())
 
-                        //in progress
+                            if (faction.getMember(player.uniqueId).getRank() > faction.getMember(sPlayer.uniqueId).getRank()) {
+                                if (faction.getMember(player.uniqueId).getRank() in 3..6) {
+                                    //TODO in progress
+                                }
+                            }
+                        }
                     }
                 }
             }
