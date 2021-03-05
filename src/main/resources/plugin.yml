@@ -1,7 +1,7 @@
 name: factions
 author: loczei
-api: 1.16.5
-version: 1.0
+api-version: 1.16
+version: 0.1.0
 main: pl.loczei.factions.FactionsPlugin
 commands:
   factions:
