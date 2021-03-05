@@ -243,6 +243,44 @@ class FactionCommand : CommandExecutor {
                         player.sendMessage(ChatColor.RED.toString() + "Player doesn't exist!")
                     }
                 }
+
+                "leave" -> {
+                    val factionPlayer = FactionPlayer.load(player.uniqueId)
+
+                    if (factionPlayer.getFaction() != "Lonely") {
+                        val faction = Faction.load(factionPlayer.getFaction())
+
+                        if (faction.getMember(player.uniqueId).getRank() < 5) {
+                            faction.deleteMember(player.uniqueId)
+                            factionPlayer.setFaction("Lonely")
+                        } else {
+                            player.sendMessage(ChatColor.RED.toString() + "You must transfer ownership!")
+                        }
+                    } else {
+                        player.sendMessage(ChatColor.RED.toString() + "You must be in faction!")
+                    }
+                }
+
+                "transferownership" -> {
+                    if (args.size == 2) {
+                        val factionPlayer = FactionPlayer.load(player.uniqueId)
+
+                        if (factionPlayer.getFaction() != "Lonely") {
+                            val faction = Faction.load(factionPlayer.getFaction())
+
+                            if (faction.getMember(player.uniqueId).getRank().toInt() == 5) {
+                                if (Bukkit.getPlayer(args[1]) is Player) {
+                                    try {
+                                        faction.setRank(Bukkit.getPlayer(args[1])!!.uniqueId, 5)
+                                        faction.setRank(player.uniqueId, 4)
+                                    } catch (err: Throwable) {
+                                        player.sendMessage(ChatColor.RED.toString() + err.message)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         return true
