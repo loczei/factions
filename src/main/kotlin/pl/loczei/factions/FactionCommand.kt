@@ -8,8 +8,9 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.lang.NumberFormatException
 
-class FactionCommand() : CommandExecutor {
+class FactionCommand : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, name: String, args: Array<out String>): Boolean {
         if (sender is Player) {
@@ -24,18 +25,18 @@ class FactionCommand() : CommandExecutor {
                             if (!Faction.exists(args[1])) {
                                 if (args[1].length in 4..16) {
                                     var i = 0
-                                    var toget = 32;
+                                    var toGet = 32
                                     for (item in player.inventory) {
                                         if (item is ItemStack) {
                                             if (item.isSimilar(ItemStack(Material.DIAMOND))) {
-                                                if (item.amount == toget) {
+                                                if (item.amount == toGet) {
                                                     player.inventory.setItem(i, ItemStack(Material.AIR))
                                                     break
-                                                } else if (item.amount > toget){
-                                                    player.inventory.setItem(i, ItemStack(Material.DIAMOND, item.amount - toget))
+                                                } else if (item.amount > toGet){
+                                                    player.inventory.setItem(i, ItemStack(Material.DIAMOND, item.amount - toGet))
                                                     break
-                                                } else if (item.amount < toget) {
-                                                    toget -= item.amount
+                                                } else if (item.amount < toGet) {
+                                                    toGet -= item.amount
                                                     player.inventory.setItem(i, ItemStack(Material.AIR))
                                                 }
                                             }
@@ -75,12 +76,16 @@ class FactionCommand() : CommandExecutor {
                                 val invitedPlayer: Player = Bukkit.getPlayer(args[1])!!
 
                                 if (invited.getPendingFaction() == "") {
-                                    invited.setPendingFaction(inviting.getFaction())
+                                    if (invited.getFaction() == "Lonely") {
+                                        invited.setPendingFaction(inviting.getFaction())
 
-                                    if (invitedPlayer.isOnline) {
-                                        invitedPlayer.sendMessage(ChatColor.GREEN.toString() + player.name + ChatColor.BLUE.toString() + " invites you to faction " + ChatColor.GREEN.toString() + faction.getName())
-                                        invitedPlayer.sendMessage(ChatColor.AQUA.toString() + "Write /factions accept to accept")
-                                        invitedPlayer.sendMessage(ChatColor.DARK_PURPLE.toString() + "Write /factions reject to reject")
+                                        if (invitedPlayer.isOnline) {
+                                            invitedPlayer.sendMessage(ChatColor.GREEN.toString() + player.name + ChatColor.BLUE.toString() + " invites you to faction " + ChatColor.GREEN.toString() + faction.getName())
+                                            invitedPlayer.sendMessage(ChatColor.AQUA.toString() + "Write /factions accept to accept")
+                                            invitedPlayer.sendMessage(ChatColor.DARK_PURPLE.toString() + "Write /factions reject to reject")
+                                        }
+                                    } else {
+                                        player.sendMessage(ChatColor.RED.toString() + "Invited player have faction!")
                                     }
                                 } else {
                                     player.sendMessage(ChatColor.RED.toString() + "Invited player have pending faction!")
@@ -120,7 +125,7 @@ class FactionCommand() : CommandExecutor {
                 }
 
                 "info" -> {
-                    if (Faction.exists(args[1])) {
+                    if (args.size == 2 && Faction.exists(args[1])) {
                         val faction = Faction.load(args[1])
 
                         player.sendMessage(ChatColor.BLUE.toString() + "Faction: " + ChatColor.GREEN.toString() + faction.getName())
@@ -150,7 +155,11 @@ class FactionCommand() : CommandExecutor {
                                 }
                             }
 
-                            message += " " + Bukkit.getPlayer(it.getUUID())!!.name
+                            message += if (Bukkit.getPlayer(it.getUUID()) is Player) {
+                                " " + Bukkit.getPlayer(it.getUUID())!!.name
+                            } else {
+                                " " + Bukkit.getOfflinePlayer(it.getUUID()).name
+                            }
                             player.sendMessage(message)
                         }
                     } else {
@@ -202,12 +211,36 @@ class FactionCommand() : CommandExecutor {
                         if (FactionPlayer.load(player.uniqueId).getFaction() != "Lonely") {
                             val faction = Faction.load(FactionPlayer.load(player.uniqueId).getFaction())
 
-                            if (faction.getMember(player.uniqueId).getRank() > faction.getMember(sPlayer.uniqueId).getRank()) {
-                                if (faction.getMember(player.uniqueId).getRank() in 3..6) {
-                                    //TODO in progress
+                            try {
+                                if (faction.getMember(player.uniqueId).getRank() > faction.getMember(sPlayer.uniqueId).getRank()) {
+                                    if (faction.getMember(player.uniqueId).getRank() in 3..6) {
+                                        try {
+                                            val rank = args[2].toInt()
+
+                                            if (faction.getMember(player.uniqueId).getRank() > rank) {
+                                                player.sendMessage(
+                                                    ChatColor.BLUE.toString() + "You have successfully set rank of member " + ChatColor.GREEN.toString() + sPlayer.name + ChatColor.BLUE.toString() + " to " + ChatColor.GREEN.toString() + faction.setRank(sPlayer.uniqueId, rank)
+                                                )
+                                            } else {
+                                                player.sendMessage(ChatColor.RED.toString() + "You can only set rank of a member with lower rank!")
+                                            }
+                                        } catch (err: NumberFormatException) {
+                                            player.sendMessage(ChatColor.RED.toString() + "Rank must be a Integer!")
+                                        }
+                                    } else {
+                                        player.sendMessage(ChatColor.RED.toString() + "Your rank is to small!")
+                                    }
+                                } else {
+                                    player.sendMessage(ChatColor.RED.toString() + "Your rank is to small!")
                                 }
+                            } catch (err: Throwable) {
+                                player.sendMessage(ChatColor.RED.toString() + err.message)
                             }
+                        } else {
+                            player.sendMessage(ChatColor.RED.toString() + "You must have a faction!")
                         }
+                    } else {
+                        player.sendMessage(ChatColor.RED.toString() + "Player doesn't exist!")
                     }
                 }
             }

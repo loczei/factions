@@ -8,6 +8,8 @@
     <artifactId>factions</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <description>(WIP)MC faction plugin</description>
+
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>

@@ -73,9 +73,12 @@ class Faction {
 
     fun getName () : String { return name }
 
-    fun setRank(uuid: UUID, rank: Int) {
+    fun setRank(uuid: UUID, rank: Int) : Int {
         try {
             members[members.indexOf(getMember(uuid))].setRank(rank.toByte())
+            save()
+
+            return members[members.indexOf(getMember(uuid))].getRank().toInt()
         } catch (err: Throwable) {
             throw err
         }
@@ -83,9 +86,13 @@ class Faction {
 
     companion object {
         fun exists (name: String) : Boolean {
-            val factionFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+            return if (name != "") {
+                val factionFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
 
-            return factionFile.exists()
+                factionFile.exists()
+            } else {
+                false
+            }
         }
 
         fun load(name: String): Faction {
