@@ -11,7 +11,7 @@ class FactionsPlugin : JavaPlugin() {
     }
 
     override fun onEnable() {
-        Bukkit.getServer().pluginManager.registerEvents(JoinEvent(this), this)
+        Bukkit.getServer().pluginManager.registerEvents(JoinEvent(), this)
 
         getCommand("factions")?.setExecutor(FactionCommand())
 

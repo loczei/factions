@@ -84,6 +84,17 @@ class Faction {
         }
     }
 
+    fun delete() {
+        if (members.size != 1) throw Throwable("You must be alone in faction!")
+
+        val factionFile =
+                File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "factions" + File.separator + name + ".yml")
+
+        factionFile.delete()
+
+        FactionPlayer.load(members[0].getUUID()).setFaction("Lonely")
+    }
+
     companion object {
         fun exists (name: String) : Boolean {
             return if (name != "") {

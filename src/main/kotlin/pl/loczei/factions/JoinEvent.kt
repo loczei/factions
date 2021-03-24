@@ -5,7 +5,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 
-class JoinEvent(private val factionsPlugin: FactionsPlugin) : Listener {
+class JoinEvent : Listener {
 
     @EventHandler fun onPlayerJoin (event: PlayerJoinEvent) {
         if (!FactionPlayer.exists(event.player.uniqueId))

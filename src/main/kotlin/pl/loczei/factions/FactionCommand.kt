@@ -301,6 +301,16 @@ class FactionCommand : CommandExecutor {
                         }
                     }
                 }
+
+                "delete" -> {
+                    val faction = Faction.load(FactionPlayer.load(player.uniqueId).getFaction())
+
+                    try {
+                        faction.delete()
+                    } catch (err: Throwable) {
+                        player.sendMessage(ChatColor.RED.toString() + err.message)
+                    }
+                }
             }
         }
         return true

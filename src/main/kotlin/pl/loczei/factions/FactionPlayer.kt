@@ -11,7 +11,7 @@ class FactionPlayer(private val uuid: UUID, private var faction: String, private
         this.save()
     }
 
-    fun save () {
+    private fun save () {
         val playerFile = File(FactionsPlugin.instance.dataFolder.toString() + File.separator + "players" + File.separator + uuid.toString() + ".yml")
 
         if (!playerFile.exists()) playerFile.createNewFile()
