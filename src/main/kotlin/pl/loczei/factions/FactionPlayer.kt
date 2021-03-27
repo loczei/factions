@@ -1,5 +1,7 @@
 package pl.loczei.factions
 
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
@@ -41,6 +43,43 @@ class FactionPlayer(private val uuid: UUID, private var faction: String, private
     fun setPendingFaction(faction: String) {
         this.pendingFaction = faction
         this.save()
+    }
+
+    fun getUUID(): UUID {
+        return uuid
+    }
+
+    fun accept() {
+        if (getPendingFaction() == "") throw Throwable("You don't have pending faction!")
+        
+        try {
+            val faction = Faction.load(getPendingFaction())
+
+            setFaction(faction.getName())
+            setPendingFaction("")
+
+            faction.addMember(uuid)
+            Bukkit.getPlayer(uuid)!!.sendMessage(ChatColor.BLUE.toString() + "You successfully joined faction " + ChatColor.GREEN.toString() + faction.getName())
+        } catch (err: Throwable) {
+            setPendingFaction("")
+
+            throw err
+        }
+    }
+
+    fun leave() {
+        if (getFaction() == "Lonely") throw Throwable("You don't have faction!")
+
+        try {
+            val faction = Faction.load(getFaction())
+
+            if (faction.getMember(getUUID()).getRank().toInt() == 5) throw Throwable("You must transfer ownership before leave!")
+
+            faction.deleteMember(getUUID())
+            setFaction("Lonely")
+        } catch (err: Throwable) {
+            throw err
+        }
     }
 
     companion object {
