@@ -2,13 +2,11 @@ package pl.loczei.factions
 
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
-import org.bukkit.OfflinePlayer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.lang.NumberFormatException
-import java.util.*
 
 class FactionCommand : CommandExecutor {
 
@@ -16,7 +14,7 @@ class FactionCommand : CommandExecutor {
         if (args.isEmpty()) {
             return false
         }
-        
+
         if (sender is Player) {
             val player: Player = sender
 
@@ -115,7 +113,7 @@ class FactionCommand : CommandExecutor {
                                 if (Bukkit.getPlayer(args[1]) is Player) {
                                     faction.setRank(
                                         faction.getMember(player.uniqueId),
-                                        faction.getMember(Bukkit.getPlayer(args[1]).uniqueId),
+                                        faction.getMember(Bukkit.getPlayer(args[1])!!.uniqueId),
                                         args[2].toInt()
                                     )
                                 } else {
