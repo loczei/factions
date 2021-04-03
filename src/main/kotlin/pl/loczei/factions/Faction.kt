@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.command.CommandSender
 import org.bukkit.inventory.ItemStack
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -131,7 +132,7 @@ class Faction {
         }
     }
 
-    fun info(player: Player) {
+    fun info(player: CommandSender) {
         player.sendMessage(ChatColor.AQUA.toString() + "Faction: " + ChatColor.GREEN.toString() + getName())
 
         getMembers().forEachIndexed { index, it ->

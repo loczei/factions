@@ -68,20 +68,6 @@ class FactionCommand : CommandExecutor {
                     FactionPlayer.load(player.uniqueId).setPendingFaction("")
                 }
 
-                "info" -> {
-                    if (args.size == 2) {
-                        try {
-                            val faction = Faction.load(args[1])
-
-                            faction.info(player)
-                        } catch (err: Throwable) {
-                            player.sendMessage(ChatColor.RED.toString() + err.message)
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.RED.toString() + "Correct use: /factions info [name of faction]")
-                    }
-                }
-
                 "kick" -> {
                     if (args.size == 2) {
                         val factionPlayer = FactionPlayer.load(player.uniqueId)
@@ -177,6 +163,20 @@ class FactionCommand : CommandExecutor {
                         player.sendMessage(ChatColor.RED.toString() + err.message)
                     }
                 }
+            }
+        }
+
+        if (args[0] == "info") {
+            if (args.size == 2) {
+                try {
+                    val faction = Faction.load(args[1])
+
+                    faction.info(sender)
+                } catch (err: Throwable) {
+                    sender.sendMessage(ChatColor.RED.toString() + err.message)
+                }
+            } else {
+                sender.sendMessage(ChatColor.RED.toString() + "Correct use: /factions info [name of faction]")
             }
         }
         return true

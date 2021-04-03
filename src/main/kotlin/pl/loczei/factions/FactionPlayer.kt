@@ -74,6 +74,7 @@ class FactionPlayer(private val uuid: UUID, private var faction: String, private
             val faction = Faction.load(getFaction())
 
             if (faction.getMember(getUUID()).getRank().toInt() == 5) throw Throwable("You must transfer ownership before leave!")
+            if (faction.getMembers().size == 1) throw Throwable("If you want leave faction with 1 member you must type /factions delete")
 
             faction.deleteMember(getUUID())
             setFaction("Lonely")
